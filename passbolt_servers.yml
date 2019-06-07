@@ -24,5 +24,4 @@
     
   roles:
     - geerlingguy.docker
-    - docker-post-setup
     - passbolt
