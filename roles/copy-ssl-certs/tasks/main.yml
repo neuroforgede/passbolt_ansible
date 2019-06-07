@@ -1,0 +1,38 @@
+---
+- name: "ensure /data/ansible exists"
+  file:
+    path: /data/ansible
+    state: directory
+
+- name: "ensure /data/ansible/certs exists"
+  file:
+    path: /data/ansible/certs
+    state: directory
+
+- name: "copy ssl certs to {{ item.directory }}"
+  copy:
+    src: "{{playbook_dir}}/files/certs/{{inventory_hostname}}/{{ item.directory }}"
+    dest: "/data/ansible/certs"
+    mode: 0700
+    owner: "{{ item.owner }}"
+    group: "{{ item.group }}"
+  when: not item.use_ids | default('False') | bool
+  with_items: "{{ ssl_cert_dirs }}"
+
+- name: "copy ssl certs to {{ item.directory }}"
+  copy:
+    src: "{{playbook_dir}}/files/certs/{{inventory_hostname}}/{{ item.directory }}"
+    dest: "/data/ansible/certs"
+    mode: 0700
+    owner: "{{ item.uid }}"
+    group: "{{ item.gid }}"
+  when: item.use_ids | default('False') | bool
+  with_items: "{{ ssl_cert_dirs }}"
+
+- name: "Ensure /data/ansible/certs/{{ item.directory }} is 0700"
+  command: chmod 700 /data/ansible/certs/{{ item.directory }}
+  with_items: "{{ ssl_cert_dirs }}"
+
+- name: "Ensure files in /data/ansible/certs/{{ item.directory }} 0400"
+  command: find /data/ansible/certs/{{ item.directory }} -type f -exec chmod 0400 {} \;
+  with_items: "{{ ssl_cert_dirs }}"

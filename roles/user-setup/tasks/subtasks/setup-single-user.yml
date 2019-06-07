@@ -1,0 +1,19 @@
+---
+# inspired by https://medium.com/sallesslice-com/visudo-with-ansible-746f83547bb3
+- name: user setup
+  become: yes
+  remote_user: root
+  block:
+    - name: "create user {{ user.name }}"
+      user:
+        name: "{{ user.name }}"
+        append: yes
+        shell: /bin/bash
+        create_home: yes
+
+    - name: "set up bashrc for user {{ user.name }}"
+      copy:
+        src: .bashrc
+        dest: "/home/{{ user.name }}/.bashrc"
+        owner: "{{ user.name }}"
+        group: "{{ user.group }}"

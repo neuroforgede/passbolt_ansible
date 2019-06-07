@@ -1,0 +1,63 @@
+passbolt_cert_dir: "passbolt_mariadb_cert"
+mariadb_cert_dir: "mariadb_server_cert"
+
+mysql_users:
+  - name: passbolt
+    host: "127.0.0.1"
+    password: "UJ2nsUjgCgQX7PeMzeU9gCV6sbnmEScs"
+    priv: "passbolt.*:ALL/*.*:REQUIRESSL"
+    encrypt: yes
+  - name: passbolt
+    host: "172.17.0.0/255.255.0.0"
+    password: "UJ2nsUjgCgQX7PeMzeU9gCV6sbnmEScs"
+    priv: "passbolt.*:ALL/*.*:REQUIRESSL"
+    encrypt: yes
+  - name: passbolt
+    host: "172.18.0.0/255.255.0.0"
+    password: "UJ2nsUjgCgQX7PeMzeU9gCV6sbnmEScs"
+    priv: "passbolt.*:ALL/*.*:REQUIRESSL"
+    encrypt: yes
+  
+mysql_databases:
+  - name: "passbolt"
+    encoding: "utf8mb4"
+    collation: "utf8mb4_unicode_ci"
+
+nginx_vhost_templates:
+  - name: "passbolt"
+    file: "passbolt.conf.j2"
+    order: "80"
+
+docker_users: []
+docker_install_compose: false
+docker_edition: 'ce'
+# pin docker to 18.09.0
+#docker_package: "docker-{{ docker_edition }}=5:18.09.0~3-0~ubuntu-xenial"
+docker_package_state: present
+
+docker_service_state: started
+docker_service_enabled: true
+docker_restart_handler_state: restarted
+
+infrastructure_base_domain: "neuroforge-test.duckdns.org"
+
+passbolt_domain: "vault.{{ infrastructure_base_domain }}"
+
+passbolt_version: "2.10.0-debian"
+passbolt_db: "passbolt"
+passbolt_db_user: "passbolt"
+passbolt_db_passwd: "UJ2nsUjgCgQX7PeMzeU9gCV6sbnmEScs"
+passbolt_salt: "SGx.ngspO-d#WFqobx<>Dy^g9zX+aj$Yz4FMt+pbWYl}`?zBPj|DiHf$,iFTlG08"
+passbolt_default_user: "admin"
+passbolt_default_user_mail: "admin@neuroforge.de"
+passbolt_key_expiration: "0"
+passbolt_key_length: "4096"
+passbolt_subkey_length: "4096"
+passbolt_email_from: "your-email@gmail.com"
+passbolt_email_user: "{{ passbolt_email_from }}"
+passbolt_email_password: "<your-email-password>"
+passbolt_email_host: "smtp.gmail.com"
+passbolt_email_port: "587"
+passbolt_email_timeout: "30"
+passbolt_email_transport_class_name: "Smtp"
+passbolt_email_use_tls: "true"

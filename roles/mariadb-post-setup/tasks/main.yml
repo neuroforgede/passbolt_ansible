@@ -1,0 +1,14 @@
+---
+- name: Allow incoming access to the mariadb port 3306 for docker servers and the database ip itself
+  ufw:
+    rule: allow
+    direction: in
+    src: "{{ item }}"
+    to_port: 3306
+  with_items:
+    # dont allow connections to the ip directly, ssl is not enforced for all
+    # connections (because of Wordpress). We have to make sure this is okay before
+    # we open to the outside ip.
+    #- "{{ host_ip }}/32"
+    - 172.17.0.0/16
+    - 172.18.0.0/16

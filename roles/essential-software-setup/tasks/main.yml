@@ -1,0 +1,48 @@
+---
+# careful: this is executed on the management node as well, so this should
+# really only include _essential_ software
+- name: Install essential packages
+  apt:
+    name: "{{ packages }}"
+    update_cache: "{{ apt_update_cache | default('True') }}"
+  vars:
+    packages:
+    - vim
+    - ufw
+    - sudo
+    - python-setuptools
+    - python-pip
+    - python-passlib
+    
+- name: configure and enable ufw
+  remote_user: root
+  become: true
+  block:
+    - name: Allow ssh connections via ipv4
+      ufw:
+        rule: allow
+        proto: tcp
+        to: 0.0.0.0/0
+        port: 22
+        
+    - name: Allow ssh ipv6 connections only via loopback
+      ufw:
+        rule: allow
+        proto: tcp
+        from: ::1
+        to: ::1
+        port: 22
+
+    - name: Enable ufw
+      ufw:
+        state: enabled
+
+- name: molly guard
+  include_tasks: subtasks/molly-guard.yml
+
+- set_fact:
+    setup_disable_ipv6_val: "{{ setup_disable_ipv6 | default('False') }}"
+
+- name: Disable ipv6
+  raw: echo 'Acquire::ForceIPv4 "true";' | sudo tee /etc/apt/apt.conf.d/99force-ipv4
+  when: setup_disable_ipv6_val|bool

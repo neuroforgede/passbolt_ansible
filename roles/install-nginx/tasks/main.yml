@@ -1,0 +1,4 @@
+---
+
+- name: nginx setup
+  include_tasks: "subtasks/nginx-init.yml"

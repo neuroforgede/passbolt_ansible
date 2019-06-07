@@ -1,0 +1,8 @@
+---
+- name: construct list of all user infos
+  set_fact:
+    all_user_infos: "{{ setup_additional_users | default([]) }}"
+
+- name: set up users
+  include: subtasks/setup-single-user.yml user="{{ item }}"
+  with_items: "{{ all_user_infos }}"

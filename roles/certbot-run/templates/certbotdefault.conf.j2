@@ -1,0 +1,25 @@
+{% for certbot_base_domain in certbot_base_domains %}
+{% if not certbot_after_run | default("False") | bool or not certbot_base_domain.delete_after | default("False") | bool %}
+server {
+    listen       80;
+    server_name  *.{{ certbot_base_domain.name }};
+
+    location /.well-known {
+       root /srv/www/_temp/.well-known;
+       allow all;
+       expires off;
+    }
+}
+
+server {
+    listen       80;
+    server_name  {{ certbot_base_domain.name }};
+
+    location /.well-known {
+       root /srv/www/_temp/.well-known;
+       allow all;
+       expires off;
+    }
+}
+{% endif %}
+{% endfor %}

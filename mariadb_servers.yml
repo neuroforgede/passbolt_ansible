@@ -1,0 +1,57 @@
+---
+- hosts: mariadb
+  become: true
+  vars:
+    ansible_ssh_private_key_file: "{{playbook_dir}}/ssh_keys/root_rsa"
+    ansible_user: "root"
+    
+    apt_update_cache: True
+    apt_restart_after_dist_upgrade: True
+    setup_additional_groups:
+      - name: "mysql"
+        requires_root_password: True
+    setup_additional_users:
+      - name: "mysql"
+        group: "mysql"
+        is_sudo: False
+    ssl_cert_dirs:
+      - directory: "{{ mariadb_cert_dir }}"
+        owner: mysql
+        group: mysql
+  roles:
+    - role: user-setup
+    - role: copy-ssl-certs
+
+- hosts: mariadb
+  become: true
+  vars:
+    ansible_ssh_private_key_file: "{{playbook_dir}}/ssh_keys/root_rsa"
+    ansible_user: "root"
+    
+    apt_update_cache: True
+
+    mysql_user_home: /home/mysql
+    mysql_user_name: mysql
+    mysql_user_password: mysql
+
+    mysql_root_password_update: false
+    mysql_enabled_on_startup: true
+
+    mysql_config_include_files: 
+      - src: "files/mariadb_configs/{{ inventory_hostname }}/99-config.cnf"
+        force: yes
+
+    mysql_port: "3306"
+    mysql_bind_address: '0.0.0.0'
+    mysql_datadir: /var/lib/mysql
+
+    mysql_packages:
+      - mariadb-client-10.1
+      - mariadb-server-10.1
+      - python-mysqldb
+
+    overwrite_global_mycnf: true
+
+  roles:
+    - role: geerlingguy.mysql
+    - role: mariadb-post-setup

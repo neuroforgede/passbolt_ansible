@@ -1,0 +1,4 @@
+- import_playbook: "base_setup.yml"
+- import_playbook: "mariadb_servers.yml"
+- import_playbook: "passbolt_servers.yml"
+- import_playbook: "nginx_servers.yml"

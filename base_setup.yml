@@ -1,0 +1,21 @@
+---
+- hosts: all
+  vars:
+    ansible_ssh_private_key_file: "{{playbook_dir}}/ssh_keys/root_rsa"
+    ansible_user: "root" 
+  gather_facts: False
+  tasks:
+    # ansible only requires only a minimal installation of python 2.x on the managed machines
+    - name: "ansible required: install python"
+      raw: apt update -y && apt install python-minimal -y && apt install python-simplejson -y
+
+- hosts: all
+  become: true
+  vars:
+    ansible_ssh_private_key_file: "{{playbook_dir}}/ssh_keys/root_rsa"
+    ansible_user: "root"
+    
+    apt_update_cache: True
+    apt_restart_after_dist_upgrade: True
+  roles:
+    - role: essential-software-setup

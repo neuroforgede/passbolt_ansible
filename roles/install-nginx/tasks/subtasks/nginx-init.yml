@@ -1,0 +1,51 @@
+---
+- name: Run apt-get update
+  apt:
+    update_cache: "{{ apt_update_cache | default('True') }}"
+
+- name: Install Package nginx
+  apt: 
+    name: nginx
+    update_cache: "{{ apt_update_cache | default('True') }}"
+
+- name: Create NGINX folder '/etc/nginx/includes'
+  file:
+    path: /etc/nginx/includes
+    state: directory
+
+- name: copy nginx config file nginx.conf to to /etc/nginx/nginx.conf
+  copy:
+    src: nginx.conf
+    dest: /etc/nginx/nginx.conf
+    owner: root
+    group: root
+
+- name: copy nginx config file redirect.conf to /etc/nginx/includes
+  copy:
+    src: redirect.conf
+    dest: /etc/nginx/includes/redirect.conf
+    owner: root
+    group: root
+
+- name: copy nginx config file serversettings.conf to /etc/nginx/includes
+  copy:
+    src: serversettings.conf
+    dest: /etc/nginx/includes/serversettings.conf
+    owner: root
+    group: root
+    
+- name: Adjust UFW to allow port 80
+  ufw:
+    rule: allow
+    name: Nginx HTTP
+
+- name: Adjust UFW to allow port 443
+  ufw:
+    rule: allow
+    name: Nginx HTTPS
+
+- name: Start NGINX as daemon
+  systemd:
+    name: nginx
+    state: started
+    enabled: yes

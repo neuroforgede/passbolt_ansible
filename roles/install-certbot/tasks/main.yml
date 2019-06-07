@@ -1,0 +1,32 @@
+---
+
+# TODO: remove this, and use the certbot role for everything!!!
+
+- name: install certbot for primary 
+  block:
+    - name: Install Package software-properties-common
+      apt: 
+        name: software-properties-common
+        update_cache: "{{ apt_update_cache | default('True') }}"
+
+    - name: Add Certbot PPA
+      apt_repository:
+        repo: ppa:certbot/certbot
+        state: present
+
+    - name: Install python plugin for Certbot 
+      apt:
+        name: python-certbot-nginx
+        update_cache: "{{ apt_update_cache | default('True') }}"
+        state: latest
+
+    - name: Install/Update Certbot 
+      apt:
+        name: "certbot"
+        update_cache: "{{ apt_update_cache | default('True') }}"
+        state: latest
+
+    # from: https://community.letsencrypt.org/t/how-to-stop-using-tls-sni-01-with-certbot/83210
+    - name: Make sure to not use tls-sni-01 in old configs
+      shell: >
+        sh -c "sed -i.bak -e 's/^\(pref_challs.*\)tls-sni-01\(.*\)/\1http-01\2/g' /etc/letsencrypt/renewal/*; rm -f /etc/letsencrypt/renewal/*.bak"

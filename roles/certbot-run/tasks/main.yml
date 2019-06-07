@@ -1,0 +1,64 @@
+---
+- name: create certbot directory in sites-available
+  file:
+    path: /etc/nginx/sites-available/certbot
+    state: directory
+    mode: 0755
+
+- name: copy template default config for certbot to nginx
+  template:
+    src: certbotdefault.conf.j2
+    dest: /etc/nginx/sites-available/certbot/99-certbotdefault.conf
+    backup: true
+
+- name: symlink default certbot conf to sites-enabled
+  file:
+    src: /etc/nginx/sites-available/certbot/99-certbotdefault.conf
+    dest: /etc/nginx/sites-enabled/99-certbotdefault.conf
+    state: link
+    force: yes
+
+- name: reload nginx
+  systemd:
+    name: nginx
+    state: reloaded
+
+# --reinstall should take care of already existing certificates so that
+#             we do not issue a new one everytime this is called
+- name: run certbot command
+  become: true
+  command: >
+    certbot --nginx certonly \
+    -d {{ item.name }} -m {{ certbot_mail | default('kontakt@neuroforge.de') }} \
+    --agree-tos -n \
+    --cert-name {{ item.name }} \
+    --reinstall \
+    --preferred-challenges http-01
+  with_items:
+    - "{{ certbot_domains | default([]) }}"
+  register: certbot_results
+
+- debug:
+    var: certbot_results.results
+
+- name: copy template default config for certbot to nginx after run
+  vars:
+    certbot_after_run: True
+  template:
+    src: certbotdefault.conf.j2
+    dest: /etc/nginx/sites-available/certbot/99-certbotdefault.conf
+    backup: true
+
+- name: symlink default certbot conf to sites-enabled after run
+  vars:
+    certbot_after_run: True
+  file:
+    src: /etc/nginx/sites-available/certbot/99-certbotdefault.conf
+    dest: /etc/nginx/sites-enabled/99-certbotdefault.conf
+    state: link
+    force: yes
+  
+- name: reload nginx
+  systemd:
+    name: nginx
+    state: reloaded

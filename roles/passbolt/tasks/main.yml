@@ -1,0 +1,116 @@
+---
+
+- name: Install rng-tools
+  apt: 
+    name: rng-tools
+    state: present
+    update_cache: "{{ apt_update_cache | default('True') }}"
+  become: yes
+
+- name: "ensure /data/ansible exists"
+  file:
+    path: /data/ansible
+    state: directory
+
+- name: "ensure /data/ansible/passbolt exists"
+  file:
+    path: /data/ansible/passbolt
+    mode: 0700
+    owner: "root"
+    group: "root"
+    state: directory
+
+- name: "ensure /data/ansible/passbolt/mariadb exists"
+  file:
+    path: /data/ansible/passbolt/mariadb
+    mode: 0700
+    owner: "33"
+    group: "33"
+    state: directory
+
+- name: "copy ssl certs to /data/ansible/passbolt/mariadb.cnf"
+  copy:
+    src: "mariadb.cnf"
+    dest: "/data/ansible/passbolt/mariadb/mariadb.cnf"
+    mode: 0700
+    owner: "33"
+    group: "33"
+
+- name: "ensure /data/ansible/passbolt/data exists"
+  file:
+    path: /data/ansible/passbolt/data
+    state: directory
+    mode: 0700
+    owner: "33"
+    group: "33"
+
+- name: "ensure /data/ansible/passbolt/data/gpg exists"
+  file:
+    path: /data/ansible/passbolt/data/gpg
+    state: directory
+    mode: 0700
+    owner: "33"
+    group: "33"
+
+- name: "ensure /data/ansible/passbolt/data/images exists"
+  file:
+    path: /data/ansible/passbolt/data/images
+    state: directory
+    mode: 0775
+    owner: "33"
+    group: "33"
+
+- name: Install docker python package
+  pip:
+    name: docker
+
+- name: download docker image for passbolt
+  docker_image:
+    name: "passbolt/passbolt"
+    tag: "{{ passbolt_version }}"
+    force: yes
+
+- name: Create passbolt docker container
+  vars:
+    database_server_str: "{{ groups['mariadb'] | map('extract', hostvars, ['host_ip']) | list | first }}"
+  docker_container:
+    name: "passbolt_master"
+    image: "passbolt/passbolt:{{ passbolt_version }}"
+    recreate: true
+    ports:
+      - "127.0.0.1:8444:443"
+    volumes:
+      - "/data/ansible/passbolt/data/gpg:/var/www/passbolt/config/gpg"
+      - "/data/ansible/passbolt/data/images:/var/www/passbolt/webroot/img/public"
+      - "/data/ansible/certs/{{ passbolt_cert_dir }}:/certs"
+      - "/data/ansible/passbolt/mariadb/mariadb.cnf:/etc/mysql/mariadb.conf.d/mariadb.cnf"
+    env:
+      DATASOURCES_DEFAULT_HOST: "{{ database_server_str }}"
+      DATASOURCES_DEFAULT_USERNAME: "{{ passbolt_db_user }}"
+      DATASOURCES_DEFAULT_PASSWORD: "{{ passbolt_db_passwd }}"
+      DATASOURCES_DEFAULT_DATABASE: "{{ passbolt_db }}"
+      APP_FULL_BASE_URL: "https://{{ passbolt_domain }}"
+      DATASOURCES_DEFAULT_SSL_KEY: "/certs/server.key"
+      DATASOURCES_DEFAULT_SSL_CERT: "/certs/server.crt"
+      DATASOURCES_DEFAULT_SSL_CA: "/certs/rootCA.crt"
+      SECURITY_SALT: "{{ passbolt_salt }}"
+      PASSBOLT_KEY_LENGTH: "{{ passbolt_key_length }}"
+      PASSBOLT_SUBKEY_LENGTH: "{{ passbolt_subkey_length }}"
+      PASSBOLT_KEY_NAME: "{{ passbolt_default_user }}"
+      PASSBOLT_KEY_EMAIL: "{{ passbolt_default_user_mail }}"
+      PASSBOLT_KEY_EXPIRATION: "{{ passbolt_key_expiration }}"
+      EMAIL_TRANSPORT_DEFAULT_CLASS_NAME: "{{ passbolt_email_transport_class_name }}"
+      EMAIL_DEFAULT_FROM: "{{ passbolt_email_from }}"
+      EMAIL_DEFAULT_TRANSPORT: "default"
+      EMAIL_TRANSPORT_DEFAULT_HOST: "{{ passbolt_email_host }}"
+      EMAIL_TRANSPORT_DEFAULT_PORT: "{{ passbolt_email_port }}"
+      EMAIL_TRANSPORT_DEFAULT_TIMEOUT: "{{ passbolt_email_timeout }}"
+      EMAIL_TRANSPORT_DEFAULT_USERNAME: "{{ passbolt_email_user }}"
+      EMAIL_TRANSPORT_DEFAULT_PASSWORD: "{{ passbolt_email_password }}"
+      EMAIL_TRANSPORT_DEFAULT_TLS: "{{  passbolt_email_use_tls }}"
+      PASSBOLT_EMAIL_SHOW_COMMENT: "false"
+      PASSBOLT_EMAIL_SHOW_DESCRIPTION: "false"
+      PASSBOLT_EMAIL_SHOW_SECRET: "false"
+      PASSBOLT_EMAIL_SHOW_URI: "false"
+      PASSBOLT_EMAIL_SHOW_USERNAME: "false"
+    restart_policy: unless-stopped

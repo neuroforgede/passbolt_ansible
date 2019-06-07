@@ -1,0 +1,5 @@
+[client]
+ssl-ca=/certs/rootCA.crt
+ssl-cert=/certs/server.crt
+ssl-key=/certs/server.key
+ssl-verify-server-cert

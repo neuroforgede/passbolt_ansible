@@ -1,0 +1,28 @@
+---
+- hosts: passbolt
+  become: true
+  vars:
+    ansible_ssh_private_key_file: "{{playbook_dir}}/ssh_keys/root_rsa"
+    ansible_user: "root"
+    
+    apt_update_cache: True
+    apt_restart_after_dist_upgrade: True
+    ssl_cert_dirs:
+      - directory: "{{ passbolt_cert_dir }}"
+        use_ids: True
+        #passbolt docker is user 33:33
+        uid: "33"
+        gid: "33"
+  roles:
+    - role: copy-ssl-certs
+
+- hosts: passbolt
+  become: true
+  vars:
+    ansible_ssh_private_key_file: "{{playbook_dir}}/ssh_keys/root_rsa"
+    ansible_user: "root"
+    
+  roles:
+    - geerlingguy.docker
+    - docker-post-setup
+    - passbolt

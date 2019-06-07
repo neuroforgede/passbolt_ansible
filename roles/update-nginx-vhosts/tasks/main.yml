@@ -1,0 +1,56 @@
+---
+- name: create vhosts
+  block:
+
+    - name: "ensure /etc/nginx exists"
+      file:
+        path: "/etc/nginx"
+        state: directory
+
+    - name: "ensure /etc/nginx/htpasswd_files exists"
+      file:
+        path: "/etc/nginx/htpasswd_files"
+        state: directory
+
+    - name: "Add empty htpasswd file to /etc/nginx/htpasswd_files/{{ item.filename }}"
+      copy:
+        src: "empty.htpasswd"
+        dest: "/etc/nginx/htpasswd_files/{{ item.filename }}"
+        mode: 0644
+      no_log: true
+      with_items: "{{ nginx_vhost_htpasswd_files | default([]) }}"
+
+    - name: "Add credentials to htpasswd files"
+      htpasswd:
+        path: "/etc/nginx/htpasswd_files/{{ item.filename }}"
+        name: "{{ item.user }}"
+        password: "{{ item.passwd }}"
+      no_log: true
+      with_items: "{{ nginx_vhost_htpasswd_files | default([]) }}"
+
+    - name: "create {{ item.name }} directory in sites-available"
+      file:
+        path: /etc/nginx/sites-available/{{ item.name }}
+        state: directory
+        mode: 0755
+      with_items: "{{ nginx_vhost_templates | default([]) }}"
+        
+    - name: copy configuration into sites available
+      template:
+        src: "{{playbook_dir}}/templates/nginx/{{ item.file }}"
+        dest: /etc/nginx/sites-available/{{ item.name }}/{{ item.order | default("80") }}-{{ item.file }}.{{ item.name }}.conf
+        backup: yes
+      with_items: "{{ nginx_vhost_templates | default([]) }}"
+    
+    - name: put configuration into sites-enabled
+      file:
+        src: /etc/nginx/sites-available/{{ item.name }}/{{ item.order | default("80") }}-{{ item.file }}.{{ item.name }}.conf
+        dest: /etc/nginx/sites-enabled/{{ item.order | default("80") }}-{{ item.file }}.{{ item.name }}.conf
+        state: link
+        force: yes
+      with_items: "{{ nginx_vhost_templates | default([]) }}"
+
+    - name: reload nginx
+      systemd:
+        name: nginx
+        state: reloaded
