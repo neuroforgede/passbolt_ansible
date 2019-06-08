@@ -18,9 +18,9 @@
 rm -r passbolt_mariadb_cert
 rm -r mariadb_server_cert
 
-bash gen_root_cert.sh root_ca 5F8qMYNVdrBhaShDYx2mcxLvLpLrDX8V
+bash gen_root_cert.sh root_ca <your-root-ca-password>
 
-bash gen_server_cert.sh root_ca passbolt_mariadb_cert 95.217.11.108 2kSCRG9ZZcHxuayAPctTrKxTC4PMXUVH
-bash gen_server_cert.sh root_ca mariadb_server_cert 95.217.11.108 83JE83yzqFcuE7wzDdxFYMA5LD4j7aP6
+bash gen_server_cert.sh root_ca passbolt_mariadb_cert <your-server-ip> <your-passbolt-ssl-password>
+bash gen_server_cert.sh root_ca mariadb_server_cert <your-server-ip> <your-mariadb-ssl-password>
 
 
