@@ -15,22 +15,34 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
+# the main domain of your infrastructure (passbolt is never hosted on the root domain with this playbook)
 infrastructure_base_domain: "neuroforge-test.duckdns.org"
+# the actual domain to use for passbolt, only change the part before the first dot
 passbolt_domain: "vault.{{ infrastructure_base_domain }}"
 
+# which passbolt version to use, see https://hub.docker.com/r/passbolt/passbolt/tags
 passbolt_version: "2.10.0-debian"
+# the password to the passbolt database
+passbolt_db_passwd: "UJ2nsUjgCgQX7PeMzeU9gCV6sbnmEScs"
+# the salt to use in passbolts CakePHP, see https://api.wordpress.org/secret-key/1.1/salt/ (and use one of the keys/salts)
+passbolt_salt: "SGx.ngspO-d#WFqobx<>Dy^g9zX+aj$Yz4FMt+pbWYl}`?zBPj|DiHf$,iFTlG08"
+
+# the name of your default user, admin should be fine
+passbolt_default_user: "admin"
+# the email of your default user
+passbolt_default_user_mail: "admin@neuroforge.de"
+
+# the email for your email notifications (other settings are set up for gmail)
+passbolt_email_from: "your-email@gmail.com"
+# the email password
+passbolt_email_password: "<your-email-password>"
+
 passbolt_db: "passbolt"
 passbolt_db_user: "passbolt"
-passbolt_db_passwd: "UJ2nsUjgCgQX7PeMzeU9gCV6sbnmEScs"
-passbolt_salt: "SGx.ngspO-d#WFqobx<>Dy^g9zX+aj$Yz4FMt+pbWYl}`?zBPj|DiHf$,iFTlG08"
-passbolt_default_user: "admin"
-passbolt_default_user_mail: "admin@neuroforge.de"
 passbolt_key_expiration: "0"
 passbolt_key_length: "4096"
 passbolt_subkey_length: "4096"
-passbolt_email_from: "your-email@gmail.com"
 passbolt_email_user: "{{ passbolt_email_from }}"
-passbolt_email_password: "<your-email-password>"
 passbolt_email_host: "smtp.gmail.com"
 passbolt_email_port: "587"
 passbolt_email_timeout: "30"
@@ -43,17 +55,17 @@ mariadb_cert_dir: "mariadb_server_cert"
 mysql_users:
   - name: "{{ passbolt_db_user }}"
     host: "127.0.0.1"
-    password: "{{ passbolt_db_password }}"
+    password: "{{ passbolt_db_passwd }}"
     priv: "{{ passbolt_db }}.*:ALL/*.*:REQUIRESSL"
     encrypt: yes
   - name: "{{ passbolt_db_user }}"
     host: "172.17.0.0/255.255.0.0"
-    password: "{{ passbolt_db_password }}"
+    password: "{{ passbolt_db_passwd }}"
     priv: "{{ passbolt_db }}.*:ALL/*.*:REQUIRESSL"
     encrypt: yes
   - name: "{{ passbolt_db_user }}"
     host: "172.18.0.0/255.255.0.0"
-    password: "{{ passbolt_db_password }}"
+    password: "{{ passbolt_db_passwd }}"
     priv: "{{ passbolt_db }}.*:ALL/*.*:REQUIRESSL"
     encrypt: yes
   
