@@ -45,7 +45,7 @@
   become: true
   command: >
     certbot --nginx certonly \
-    -d {{ item.name }} -m {{ certbot_mail | default('kontakt@neuroforge.de') }} \
+    -d {{ item.name }} -m {{ certbot_mail | default('some@email.com') }} \
     --agree-tos -n \
     --cert-name {{ item.name }} \
     --reinstall \
