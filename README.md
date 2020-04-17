@@ -16,3 +16,10 @@ German: https://neuroforge.de/passbolt-ein-open-source-passwort-manager/
 7. Run `su -c "./bin/cake passbolt register_user -u admin@yourorg.com -f Admin -l Adminson -r admin" -s /bin/bash www-data`
 8. Complete the Passbolt setup in your browser.
 
+## (Manual backups)
+
+1. Run `bash manual_backup.sh <your-ip>`
+
+and/or
+
+1. Export all passwords in the Passbolt UI
