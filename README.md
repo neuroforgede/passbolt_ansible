@@ -7,6 +7,17 @@ German: https://neuroforge.de/passbolt-ein-open-source-passwort-manager/
 
 ## Short (english) HOW-TO:
 
+### Preparations
+
+```
+sudo apt install python3
+sudo apt install python3-pip
+pip3 install ansible==2.7.10
+ansible-galaxy install geerlingguy.docker,v2.5.1 geerlingguy.mysql,v2.9.4 
+```
+
+### Step by Step
+
 1. Adapt `files/certs/passbolt_server/gen_root_cert.sh` and `files/certs/passbolt_server/gen_server_cert.sh` to generate certificates that fit your organisation. (Tip: search for `emailAddress=test@your-domain.de`)
 2. Adapt `files/certs/passbolt_server/recreate_server_certs.sh` and replace the placeholders accordingly
 3. Adapt `inventories/passbolt/group_vars/all/all_config.yml` according to the comments in the file.
