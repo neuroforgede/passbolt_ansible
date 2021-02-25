@@ -96,8 +96,8 @@
     ports:
       - "127.0.0.1:8444:443"
     volumes:
-      - "/data/ansible/passbolt/data/gpg:/var/www/passbolt/config/gpg"
-      - "/data/ansible/passbolt/data/images:/var/www/passbolt/webroot/img/public"
+      - "/data/ansible/passbolt/data/gpg:/etc/passbolt/gpg"
+      - "/data/ansible/passbolt/data/images:/usr/share/php/passbolt/webroot/img/public"
       - "/data/ansible/certs/{{ passbolt_cert_dir }}:/certs"
       - "/data/ansible/passbolt/mariadb/mariadb.cnf:/etc/mysql/mariadb.conf.d/mariadb.cnf"
     env:
