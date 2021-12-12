@@ -67,6 +67,14 @@
     mode: 0700
     owner: "33"
     group: "33"
+    
+- name: "ensure /data/ansible/passbolt/data/jwt exists"
+  file:
+    path: /data/ansible/passbolt/data/jwt
+    state: directory
+    mode: 0700
+    owner: "33"
+    group: "33"
 
 - name: "ensure /data/ansible/passbolt/data/images exists"
   file:
@@ -97,6 +105,7 @@
       - "127.0.0.1:8444:443"
     volumes:
       - "/data/ansible/passbolt/data/gpg:/etc/passbolt/gpg"
+      - "/data/ansible/passbolt/data/jwt:/etc/passbolt/jwt"
       - "/data/ansible/passbolt/data/images:/usr/share/php/passbolt/webroot/img/public"
       - "/data/ansible/certs/{{ passbolt_cert_dir }}:/certs"
       - "/data/ansible/passbolt/mariadb/mariadb.cnf:/etc/mysql/mariadb.conf.d/mariadb.cnf"
@@ -129,4 +138,6 @@
       PASSBOLT_EMAIL_SHOW_SECRET: "false"
       PASSBOLT_EMAIL_SHOW_URI: "false"
       PASSBOLT_EMAIL_SHOW_USERNAME: "false"
+      PASSBOLT_PLUGINS_JWT_AUTHENTICATION_ENABLED: "true"
+      PASSBOLT_PLUGINS_MOBILE_ENABLED: "true"
     restart_policy: unless-stopped
