@@ -21,7 +21,7 @@ infrastructure_base_domain: "neuroforge-test.duckdns.org"
 passbolt_domain: "vault.{{ infrastructure_base_domain }}"
 
 # which passbolt version to use, see https://hub.docker.com/r/passbolt/passbolt/tags
-passbolt_version: "3.8.3-1-ce"
+passbolt_version: "3.10.0-1-ce"
 # the password to the passbolt database
 passbolt_db_passwd: "UJ2nsUjgCgQX7PeMzeU9gCV6sbnmEScs"
 # the salt to use in passbolts CakePHP, see https://api.wordpress.org/secret-key/1.1/salt/ (and use one of the keys/salts)
